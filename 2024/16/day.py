@@ -70,43 +70,27 @@ def part01(maze):
     q = []
     path = Path(maze, [start], Facing.RIGHT)
     while path.head != end:
-        match path.facing:
-            case Facing.LEFT:
-                new_path = Path(path.maze, path.path + [Facing.UP], Facing.UP)
-                heapq.heappush(q, new_path)
-                new_path = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
-                heapq.heappush(q, new_path)
-                new_head = (path.head[0], path.head[1] - 1)
-                new_path = Path(path.maze, path.path + [new_head], Facing.LEFT)
-                if maze[new_head[0]][new_head[1]] != '#':
-                    heapq.heappush(q, new_path)
-            case Facing.RIGHT:
-                new_path = Path(path.maze, path.path + [Facing.UP], Facing.UP)
-                heapq.heappush(q, new_path)
-                new_path = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
-                heapq.heappush(q, new_path)
-                new_head = (path.head[0], path.head[1] + 1)
-                new_path = Path(path.maze, path.path + [new_head], Facing.RIGHT)
-                if maze[new_head[0]][new_head[1]] != '#':
-                    heapq.heappush(q, new_path)
-            case Facing.UP:
-                new_path = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
-                heapq.heappush(q, new_path)
-                new_path = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
-                heapq.heappush(q, new_path)
-                new_head = (path.head[0] - 1, path.head[1])
-                new_path = Path(path.maze, path.path + [new_head], Facing.UP)
-                if maze[new_head[0]][new_head[1]] != '#':
-                    heapq.heappush(q, new_path)
-            case Facing.DOWN:
-                new_path = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
-                heapq.heappush(q, new_path)
-                new_path = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
-                heapq.heappush(q, new_path)
-                new_head = (path.head[0] + 1, path.head[1])
-                new_path = Path(path.maze, path.path + [new_head], Facing.DOWN)
-                if maze[new_head[0]][new_head[1]] != '#':
-                    heapq.heappush(q, new_path)
+        if path.facing == Facing.LEFT:
+            rotate_cw = Path(path.maze, path.path + [Facing.UP], Facing.UP)
+            rotate_ccw = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
+            new_head = (path.head[0], path.head[1] - 1)
+        elif path.facing == Facing.RIGHT:
+            rotate_ccw = Path(path.maze, path.path + [Facing.UP], Facing.UP)
+            rotate_cw = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
+            new_head = (path.head[0], path.head[1] + 1)
+        elif path.facing == Facing.UP:
+            rotate_ccw = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
+            rotate_cw = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
+            new_head = (path.head[0] - 1, path.head[1])
+        elif path.facing == Facing.DOWN:
+            rotate_ccw = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
+            rotate_cw = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
+            new_head = (path.head[0] + 1, path.head[1])
+        if not isinstance(path.head, Facing):  # there's never a reason to turn twice
+            heapq.heappush(q, rotate_cw)
+            heapq.heappush(q, rotate_ccw)
+        if maze[new_head[0]][new_head[1]] != '#':
+            heapq.heappush(q, Path(path.maze, path.path + [new_head], path.facing))
         path = heapq.heappop(q)
     return path.score
 
