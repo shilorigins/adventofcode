@@ -31,7 +31,7 @@ class Path:
 
     @property
     def score(self):
-        return sum([1000 if isinstance(step, Facing) else 1 for step in self.path])
+        return sum([1000 if isinstance(step, Facing) else 1 for step in self.path]) - 1
 
     def __hash__(self):
         return (tuple(self.path), self.facing).__hash__()
