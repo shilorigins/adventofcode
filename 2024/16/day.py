@@ -33,9 +33,6 @@ class Path:
     def score(self):
         return sum([1000 if isinstance(step, Facing) else 1 for step in self.path]) - 1
 
-    def __hash__(self):
-        return (tuple(self.path), self.facing).__hash__()
-
     def __lt__(self, other):
         return isinstance(other, type(self)) and self.score < other.score
 
@@ -67,62 +64,48 @@ def part01(maze):
                 start = (i, j)
             if char == 'E':
                 end = (i, j)
-    q = [Path(maze, [start], Facing.RIGHT)]
-    heapq.heapify(q)
-    seen = set()
-    while len(q) > 0:
+    q = []
+    path = Path(maze, [start], Facing.RIGHT)
+    while path.head != end:
+        match path.facing:
+            case Facing.LEFT:
+                new_path = Path(path.maze, path.path + [Facing.UP], Facing.UP)
+                heapq.heappush(q, new_path)
+                new_path = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
+                heapq.heappush(q, new_path)
+                new_head = (path.head[0], path.head[1] - 1)
+                new_path = Path(path.maze, path.path + [new_head], Facing.LEFT)
+                if maze[new_head[0]][new_head[1]] != '#':
+                    heapq.heappush(q, new_path)
+            case Facing.RIGHT:
+                new_path = Path(path.maze, path.path + [Facing.UP], Facing.UP)
+                heapq.heappush(q, new_path)
+                new_path = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
+                heapq.heappush(q, new_path)
+                new_head = (path.head[0], path.head[1] + 1)
+                new_path = Path(path.maze, path.path + [new_head], Facing.RIGHT)
+                if maze[new_head[0]][new_head[1]] != '#':
+                    heapq.heappush(q, new_path)
+            case Facing.UP:
+                new_path = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
+                heapq.heappush(q, new_path)
+                new_path = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
+                heapq.heappush(q, new_path)
+                new_head = (path.head[0] - 1, path.head[1])
+                new_path = Path(path.maze, path.path + [new_head], Facing.UP)
+                if maze[new_head[0]][new_head[1]] != '#':
+                    heapq.heappush(q, new_path)
+            case Facing.DOWN:
+                new_path = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
+                heapq.heappush(q, new_path)
+                new_path = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
+                heapq.heappush(q, new_path)
+                new_head = (path.head[0] + 1, path.head[1])
+                new_path = Path(path.maze, path.path + [new_head], Facing.DOWN)
+                if maze[new_head[0]][new_head[1]] != '#':
+                    heapq.heappush(q, new_path)
         path = heapq.heappop(q)
-        if path.head == end:
-            lowest = min(lowest, path.score)
-            break
-        else:
-            seen.add(path)
-            match path.facing:
-                case Facing.LEFT:
-                    new_path = Path(path.maze, path.path + [Facing.UP], Facing.UP)
-                    if new_path not in seen:
-                        heapq.heappush(q, new_path)
-                    new_path = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
-                    if new_path not in seen:
-                        heapq.heappush(q, new_path)
-                    new_head = (path.head[0], path.head[1] - 1)
-                    new_path = Path(path.maze, path.path + [new_head], Facing.LEFT)
-                    if maze[new_head[0]][new_head[1]] != '#' and new_path not in seen:
-                        heapq.heappush(q, new_path)
-                case Facing.RIGHT:
-                    new_path = Path(path.maze, path.path + [Facing.UP], Facing.UP)
-                    if new_path not in seen:
-                        heapq.heappush(q, new_path)
-                    new_path = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
-                    if new_path not in seen:
-                        heapq.heappush(q, new_path)
-                    new_head = (path.head[0], path.head[1] + 1)
-                    new_path = Path(path.maze, path.path + [new_head], Facing.RIGHT)
-                    if maze[new_head[0]][new_head[1]] != '#' and new_path not in seen:
-                        heapq.heappush(q, new_path)
-                case Facing.UP:
-                    new_path = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
-                    if new_path not in seen:
-                        heapq.heappush(q, new_path)
-                    new_path = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
-                    if new_path not in seen:
-                        heapq.heappush(q, new_path)
-                    new_head = (path.head[0] - 1, path.head[1])
-                    new_path = Path(path.maze, path.path + [new_head], Facing.UP)
-                    if maze[new_head[0]][new_head[1]] != '#' and new_path not in seen:
-                        heapq.heappush(q, new_path)
-                case Facing.DOWN:
-                    new_path = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
-                    if new_path not in seen:
-                        heapq.heappush(q, new_path)
-                    new_path = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
-                    if new_path not in seen:
-                        heapq.heappush(q, new_path)
-                    new_head = (path.head[0] + 1, path.head[1])
-                    new_path = Path(path.maze, path.path + [new_head], Facing.DOWN)
-                    if maze[new_head[0]][new_head[1]] != '#' and new_path not in seen:
-                        heapq.heappush(q, new_path)
-    return lowest
+    return path.score
 
 
 def part02():
