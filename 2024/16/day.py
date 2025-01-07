@@ -34,7 +34,10 @@ class Path:
         return sum([1000 if isinstance(step, Facing) else 1 for step in self.path]) - 1
 
     def __lt__(self, other):
-        return isinstance(other, type(self)) and self.score < other.score
+        if not isinstance(other, type(self)):
+            raise TypeError
+        else:
+            return self.score < other.score
 
     def print(self):
         copy = deepcopy(self.maze)
