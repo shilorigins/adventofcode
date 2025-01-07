@@ -115,8 +115,8 @@ def test_bigger():
 
 def main():
     with open('input.txt') as f:
-        _ = f.read().split()
-    print(part01())
+        maze = [list(line) for line in f.read().split()]
+    print(part01(maze))
     print(part02())
 
 
