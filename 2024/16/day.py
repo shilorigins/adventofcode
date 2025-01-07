@@ -115,16 +115,18 @@ def part02():
     pass
 
 
-def test():
+def test_smaller():
     with open('test.txt') as f:
         maze = [list(line) for line in f.read().split()]
     assert part01(maze) == 7036
     assert part02() is None
 
-    #with open('bigger_test.txt') as f:
-    #    maze = [list(line) for line in f.read().split()]
-    #assert part01(maze) == 11048
-    #assert part02() is None
+
+def test_bigger():
+    with open('bigger_test.txt') as f:
+        maze = [list(line) for line in f.read().split()]
+    assert part01(maze) == 11048
+    assert part02() is None
 
 
 def main():
@@ -135,7 +137,4 @@ def main():
 
 
 if __name__ == "__main__":
-    if sys.argv[1] == "test":
-        test()
-    else:
-        main()
+    main()
