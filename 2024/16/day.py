@@ -2,6 +2,7 @@ import heapq
 import math
 import sys
 
+from collections import deque
 from copy import deepcopy
 from enum import Enum, auto
 from pprint import pprint
@@ -95,6 +96,64 @@ def part01(maze):
     return path.score
 
 
+def adjacent(point, maze):
+    i, j = point
+    height = len(maze)
+    width = len(maze[0])
+    points = (
+        ((i - 1, j), Facing.DOWN),
+        ((i, j - 1), Facing.RIGHT),
+        ((i + 1, j), Facing.UP),
+        ((i, j + 1), Facing.LEFT),
+    )
+    return (step for step in points if step[0][0] >= 0 and step[0][0] < height and step[0][1] >= 0 and step[0][1] < width and maze[step[0][0]][step[0][1]] != '#')
+
+
+def print_scores(maze, dp):
+    scores = deepcopy(maze)
+    for i in range(len(scores)):
+        for j in range(len(scores[0])):
+            if dp[i][j][0] != math.inf:
+                scores[i][j] = dp[i][j][0]
+    pprint(scores)
+
+
+def part01_dynamic(maze) -> int:
+    dp = [[(math.inf, None) for _ in range(len(maze[0]))] for _ in range(len(maze))]
+    j = len(maze[0])
+    for i, row in enumerate(maze):
+        try:
+            j = row.index('E')
+            break
+        except ValueError:
+            pass
+    end = (i, j)
+    start = None
+    dp[end[0]][end[1]] = (0, None)
+    q = deque([point for point, _ in adjacent(end, maze)])
+    while len(q) > 0:
+        point = q.popleft()
+        if maze[point[0]][point[1]] == 'S':
+            start = point
+        step_cost = {}
+        for neighbor, step_direction in adjacent(point, maze):
+            if dp[neighbor[0]][neighbor[1]][0] == math.inf:
+                q.append(neighbor)
+            else:
+                cost = dp[neighbor[0]][neighbor[1]][0] + 1
+                if step_direction != dp[neighbor[0]][neighbor[1]][1] and dp[neighbor[0]][neighbor[1]][1] is not None:
+                    cost += 1000
+                step_cost[neighbor] = (cost, step_direction)
+        lowest = math.inf
+        facing = None
+        for neighbor in step_cost:
+            if step_cost[neighbor][0] < lowest:
+                lowest = step_cost[neighbor][0]
+                facing = step_cost[neighbor][1]
+        dp[point[0]][point[1]] = (lowest, facing)
+    return dp[start[0]][start[1]][0]
+
+
 def part02():
     pass
 
@@ -102,14 +161,14 @@ def part02():
 def test_smaller():
     with open('test.txt') as f:
         maze = [list(line) for line in f.read().split()]
-    assert part01(maze) == 7036
+    assert part01_dynamic(maze) == 7036
     assert part02() is None
 
 
 def test_bigger():
     with open('bigger_test.txt') as f:
         maze = [list(line) for line in f.read().split()]
-    assert part01(maze) == 11048
+    assert part01_dynamic(maze) == 11048
     assert part02() is None
 
 
