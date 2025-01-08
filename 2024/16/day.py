@@ -228,7 +228,7 @@ def test_bigger():
 def main():
     with open('input.txt') as f:
         maze = [list(line) for line in f.read().split()]
-    print(part01(maze))
+    print(part01_dynamic(maze))
     print(part02())
 
 
