@@ -162,23 +162,24 @@ def print_paths(maze, dp):
     pprint(["".join(line) for line in copy])
 
 
-def compute_cost_grid(maze):
-    dp = [[(math.inf, None) for _ in range(len(maze[0]))] for _ in range(len(maze))]
+def find_char(maze, char):
     j = len(maze[0])
     for i, row in enumerate(maze):
         try:
-            j = row.index('E')
+            j = row.index(char)
             break
         except ValueError:
             pass
-    end = (i, j)
-    start = None
+    return i, j
+
+
+def compute_cost_grid(maze):
+    dp = [[(math.inf, None) for _ in range(len(maze[0]))] for _ in range(len(maze))]
+    end = find_char('E')
     dp[end[0]][end[1]] = (0, None)
     q = set([point for point, _ in adjacent(end, maze)])
     while len(q) > 0:
         point = q.pop()
-        if maze[point[0]][point[1]] == 'S':
-            start = point
         step_cost = {}
         for neighbor, step_direction in adjacent(point, maze):
             if dp[neighbor[0]][neighbor[1]][0] != math.inf:
@@ -196,6 +197,7 @@ def compute_cost_grid(maze):
         for neighbor, _ in adjacent(point, maze):
             if dp[neighbor[0]][neighbor[1]][0] > lowest:
                 q.add(neighbor)
+    start = find_char('S')
     inital_turn_cost = 0
     match dp[start[0]][start[1]][1]:
         case Facing.UP:
@@ -210,13 +212,7 @@ def compute_cost_grid(maze):
 
 def part01_dynamic(maze):
     dp = compute_cost_grid(maze)
-    j = len(maze[0])
-    for i, row in enumerate(maze):
-        try:
-            j = row.index('S')
-            break
-        except ValueError:
-            pass
+    i, j = find_char(maze, 'S')
     return dp[i][j][0]
 
 
