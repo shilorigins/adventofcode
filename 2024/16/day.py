@@ -106,7 +106,7 @@ def adjacent(point, maze):
         ((i + 1, j), Facing.DOWN),
         ((i, j + 1), Facing.RIGHT),
     )
-    return (step for step in points if step[0][0] >= 0 and step[0][0] < height and step[0][1] >= 0 and step[0][1] < width and maze[step[0][0]][step[0][1]] != '#')
+    return tuple(step for step in points if step[0][0] >= 0 and step[0][0] < height and step[0][1] >= 0 and step[0][1] < width and maze[step[0][0]][step[0][1]] != '#')
 
 
 def print_scores(maze, dp):
@@ -118,28 +118,6 @@ def print_scores(maze, dp):
             else:
                 scores[i][j] = scores[i][j].center(5)
     pprint(["".join(line) for line in scores])
-
-
-def print_path(maze, dp, point):
-    copy = deepcopy(maze)
-    char = '@'
-    while maze[point[0]][point[1]] != 'E':
-        _, step_direction = dp[point[0]][point[1]]
-        match step_direction:
-            case Facing.LEFT:
-                char = '<'
-                point = (point[0], point[1] - 1)
-            case Facing.RIGHT:
-                char = '>'
-                point = (point[0], point[1] + 1)
-            case Facing.UP:
-                char = '^'
-                point = (point[0] - 1, point[1])
-            case Facing.DOWN:
-                char = 'v'
-                point = (point[0] + 1, point[1])
-        copy[point[0]][point[1]] = char
-    pprint(["".join(line) for line in copy])
 
 
 def print_paths(maze, dp):
@@ -175,7 +153,7 @@ def find_char(maze, char):
 
 def compute_cost_grid(maze):
     dp = [[(math.inf, None) for _ in range(len(maze[0]))] for _ in range(len(maze))]
-    end = find_char('E')
+    end = find_char(maze, 'E')
     dp[end[0]][end[1]] = (0, None)
     q = set([point for point, _ in adjacent(end, maze)])
     while len(q) > 0:
@@ -197,7 +175,7 @@ def compute_cost_grid(maze):
         for neighbor, _ in adjacent(point, maze):
             if dp[neighbor[0]][neighbor[1]][0] > lowest:
                 q.add(neighbor)
-    start = find_char('S')
+    start = find_char(maze, 'S')
     inital_turn_cost = 0
     match dp[start[0]][start[1]][1]:
         case Facing.UP:
@@ -216,29 +194,51 @@ def part01_dynamic(maze):
     return dp[i][j][0]
 
 
-def part02():
-    pass
+def print_good_seats(maze, good_seats):
+    copy = deepcopy(maze)
+    for i, j in good_seats:
+        copy[i][j] = 'O'
+    pprint(["".join(line) for line in copy])
+
+
+def part02(maze):
+    dp = compute_cost_grid(maze)
+    q = [find_char(maze, 'S')]
+    good_seats = set(q)
+    while len(q) > 0:
+        point = q.pop()
+        if maze[point[0]][point[1]] == 'E':
+            continue
+        #steps = [step for step in adjacent(point, maze) if step[0] not in good_seats]
+        steps = adjacent(point, maze)
+        optimal_cost = min([dp[neighbor[0]][neighbor[1]][0] for neighbor, _ in steps])
+        for neighbor, _ in steps:
+            if dp[neighbor[0]][neighbor[1]][0] == optimal_cost or dp[neighbor[0]][neighbor[1]][0] - 1000 == optimal_cost:
+                good_seats.add(neighbor)
+                q.append(neighbor)
+    print_good_seats(maze, good_seats)
+    return len(good_seats)
 
 
 def test_smaller():
     with open('test.txt') as f:
         maze = [list(line) for line in f.read().split()]
     assert part01_dynamic(maze) == 7036
-    assert part02() is None
+    assert part02(maze) == 45
 
 
 def test_bigger():
     with open('bigger_test.txt') as f:
         maze = [list(line) for line in f.read().split()]
     assert part01_dynamic(maze) == 11048
-    assert part02() is None
+    assert part02(maze) == 64
 
 
 def main():
     with open('input.txt') as f:
         maze = [list(line) for line in f.read().split()]
     print(part01_dynamic(maze))
-    print(part02())
+    print(part02(maze))
 
 
 if __name__ == "__main__":
