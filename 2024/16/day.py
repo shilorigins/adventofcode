@@ -181,9 +181,7 @@ def part01_dynamic(maze) -> int:
             start = point
         step_cost = {}
         for neighbor, step_direction in adjacent(point, maze):
-            if dp[neighbor[0]][neighbor[1]][0] == math.inf:
-                q.append(neighbor)
-            else:
+            if dp[neighbor[0]][neighbor[1]][0] != math.inf:
                 cost = dp[neighbor[0]][neighbor[1]][0] + 1
                 if step_direction != dp[neighbor[0]][neighbor[1]][1] and dp[neighbor[0]][neighbor[1]][1] is not None:
                     cost += 1000
@@ -195,7 +193,18 @@ def part01_dynamic(maze) -> int:
                 lowest = step_cost[neighbor][0]
                 facing = step_cost[neighbor][1]
         dp[point[0]][point[1]] = (lowest, facing)
-    return dp[start[0]][start[1]][0]
+        for neighbor, _ in adjacent(point, maze):
+            if dp[neighbor[0]][neighbor[1]][0] > lowest:
+                q.append(neighbor)
+    inital_turn_cost = 0
+    match dp[start[0]][start[1]][1]:
+        case Facing.UP:
+            inital_turn_cost = 1000
+        case Facing.DOWN:
+            inital_turn_cost = 1000
+        case Facing.LEFT:
+            inital_turn_cost = 2000
+    return dp[start[0]][start[1]][0] + inital_turn_cost
 
 
 def part02():
