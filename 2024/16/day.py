@@ -174,9 +174,9 @@ def part01_dynamic(maze) -> int:
     end = (i, j)
     start = None
     dp[end[0]][end[1]] = (0, None)
-    q = deque([point for point, _ in adjacent(end, maze)])
+    q = set([point for point, _ in adjacent(end, maze)])
     while len(q) > 0:
-        point = q.popleft()
+        point = q.pop()
         if maze[point[0]][point[1]] == 'S':
             start = point
         step_cost = {}
@@ -195,7 +195,7 @@ def part01_dynamic(maze) -> int:
         dp[point[0]][point[1]] = (lowest, facing)
         for neighbor, _ in adjacent(point, maze):
             if dp[neighbor[0]][neighbor[1]][0] > lowest:
-                q.append(neighbor)
+                q.add(neighbor)
     inital_turn_cost = 0
     match dp[start[0]][start[1]][1]:
         case Facing.UP:
