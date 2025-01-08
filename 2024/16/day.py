@@ -58,44 +58,6 @@ class Path:
         pprint(["".join(line) for line in copy])
 
 
-def part01(maze):
-    lowest = math.inf
-    start = None
-    end = None
-    for i, line in enumerate(maze):
-        for j, char in enumerate(line):
-            if char == 'S':
-                start = (i, j)
-            if char == 'E':
-                end = (i, j)
-    q = []
-    path = Path(maze, [start], Facing.RIGHT)
-    while path.head != end:
-        if path.facing == Facing.LEFT:
-            rotate_cw = Path(path.maze, path.path + [Facing.UP], Facing.UP)
-            rotate_ccw = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
-            new_head = (path.head[0], path.head[1] - 1)
-        elif path.facing == Facing.RIGHT:
-            rotate_ccw = Path(path.maze, path.path + [Facing.UP], Facing.UP)
-            rotate_cw = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
-            new_head = (path.head[0], path.head[1] + 1)
-        elif path.facing == Facing.UP:
-            rotate_ccw = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
-            rotate_cw = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
-            new_head = (path.head[0] - 1, path.head[1])
-        elif path.facing == Facing.DOWN:
-            rotate_ccw = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
-            rotate_cw = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
-            new_head = (path.head[0] + 1, path.head[1])
-        if not isinstance(path.head, Facing):  # there's never a reason to turn twice
-            heapq.heappush(q, rotate_cw)
-            heapq.heappush(q, rotate_ccw)
-        if maze[new_head[0]][new_head[1]] != '#':
-            heapq.heappush(q, Path(path.maze, path.path + [new_head], path.facing))
-        path = heapq.heappop(q)
-    return path.score
-
-
 def adjacent(point, maze):
     i, j = point
     height = len(maze)
@@ -220,25 +182,58 @@ def part02(maze):
     return len(good_seats)
 
 
+def part02_path_finding(maze):
+    lowest = math.inf
+    start = find_char(maze, 'S')
+    end = find_char(maze, 'E')
+
+    q = []
+    path = Path(maze, [start], Facing.RIGHT)
+    while path.head != end:
+        if path.facing == Facing.LEFT:
+            rotate_cw = Path(path.maze, path.path + [Facing.UP], Facing.UP)
+            rotate_ccw = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
+            new_head = (path.head[0], path.head[1] - 1)
+        elif path.facing == Facing.RIGHT:
+            rotate_ccw = Path(path.maze, path.path + [Facing.UP], Facing.UP)
+            rotate_cw = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
+            new_head = (path.head[0], path.head[1] + 1)
+        elif path.facing == Facing.UP:
+            rotate_ccw = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
+            rotate_cw = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
+            new_head = (path.head[0] - 1, path.head[1])
+        elif path.facing == Facing.DOWN:
+            rotate_ccw = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
+            rotate_cw = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
+            new_head = (path.head[0] + 1, path.head[1])
+        if not isinstance(path.head, Facing):  # there's never a reason to turn twice
+            heapq.heappush(q, rotate_cw)
+            heapq.heappush(q, rotate_ccw)
+        if maze[new_head[0]][new_head[1]] != '#':
+            heapq.heappush(q, Path(path.maze, path.path + [new_head], path.facing))
+        path = heapq.heappop(q)
+    return path.score
+
+
 def test_smaller():
     with open('test.txt') as f:
         maze = [list(line) for line in f.read().split()]
     assert part01_dynamic(maze) == 7036
-    assert part02(maze) == 45
+    assert part02_path_finding(maze) == 45
 
 
 def test_bigger():
     with open('bigger_test.txt') as f:
         maze = [list(line) for line in f.read().split()]
     assert part01_dynamic(maze) == 11048
-    assert part02(maze) == 64
+    assert part02_path_finding(maze) == 64
 
 
 def main():
     with open('input.txt') as f:
         maze = [list(line) for line in f.read().split()]
     print(part01_dynamic(maze))
-    print(part02(maze))
+    print(part02_path_finding(maze))
 
 
 if __name__ == "__main__":
