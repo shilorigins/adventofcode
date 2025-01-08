@@ -162,7 +162,7 @@ def print_paths(maze, dp):
     pprint(["".join(line) for line in copy])
 
 
-def part01_dynamic(maze) -> int:
+def compute_cost_grid(maze):
     dp = [[(math.inf, None) for _ in range(len(maze[0]))] for _ in range(len(maze))]
     j = len(maze[0])
     for i, row in enumerate(maze):
@@ -204,7 +204,20 @@ def part01_dynamic(maze) -> int:
             inital_turn_cost = 1000
         case Facing.LEFT:
             inital_turn_cost = 2000
-    return dp[start[0]][start[1]][0] + inital_turn_cost
+    dp[start[0]][start[1]] = (dp[start[0]][start[1]][0] + inital_turn_cost, dp[start[0]][start[1]][1])
+    return dp
+
+
+def part01_dynamic(maze):
+    dp = compute_cost_grid(maze)
+    j = len(maze[0])
+    for i, row in enumerate(maze):
+        try:
+            j = row.index('S')
+            break
+        except ValueError:
+            pass
+    return dp[i][j][0]
 
 
 def part02():
