@@ -114,8 +114,52 @@ def print_scores(maze, dp):
     for i in range(len(scores)):
         for j in range(len(scores[0])):
             if dp[i][j][0] != math.inf:
-                scores[i][j] = dp[i][j][0]
-    pprint(scores)
+                scores[i][j] = str(dp[i][j][0]).center(5)
+            else:
+                scores[i][j] = scores[i][j].center(5)
+    pprint(["".join(line) for line in scores])
+
+
+def print_path(maze, dp, point):
+    copy = deepcopy(maze)
+    char = '@'
+    while maze[point[0]][point[1]] != 'E':
+        _, step_direction = dp[point[0]][point[1]]
+        match step_direction:
+            case Facing.LEFT:
+                char = '<'
+                point = (point[0], point[1] - 1)
+            case Facing.RIGHT:
+                char = '>'
+                point = (point[0], point[1] + 1)
+            case Facing.UP:
+                char = '^'
+                point = (point[0] - 1, point[1])
+            case Facing.DOWN:
+                char = 'v'
+                point = (point[0] + 1, point[1])
+        copy[point[0]][point[1]] = char
+    pprint(["".join(line) for line in copy])
+
+
+def print_paths(maze, dp):
+    copy = deepcopy(maze)
+    char = '@'
+    for i in range(len(copy)):
+        for j in range(len(copy[0])):
+            match dp[i][j][1]:
+                case Facing.LEFT:
+                    char = '<'
+                case Facing.RIGHT:
+                    char = '>'
+                case Facing.UP:
+                    char = '^'
+                case Facing.DOWN:
+                    char = 'v'
+                case _:
+                    char = copy[i][j]
+            copy[i][j] = char
+    pprint(["".join(line) for line in copy])
 
 
 def part01_dynamic(maze) -> int:
