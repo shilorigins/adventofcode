@@ -101,10 +101,10 @@ def adjacent(point, maze):
     height = len(maze)
     width = len(maze[0])
     points = (
-        ((i - 1, j), Facing.DOWN),
-        ((i, j - 1), Facing.RIGHT),
-        ((i + 1, j), Facing.UP),
-        ((i, j + 1), Facing.LEFT),
+        ((i - 1, j), Facing.UP),
+        ((i, j - 1), Facing.LEFT),
+        ((i + 1, j), Facing.DOWN),
+        ((i, j + 1), Facing.RIGHT),
     )
     return (step for step in points if step[0][0] >= 0 and step[0][0] < height and step[0][1] >= 0 and step[0][1] < width and maze[step[0][0]][step[0][1]] != '#')
 
