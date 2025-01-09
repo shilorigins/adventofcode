@@ -15,36 +15,35 @@ class Facing(Enum):
 
 
 class Path:
-    def __init__(self, maze, path, num_turns, facing):
+    def __init__(self, maze, path, head, facing):
         self.maze = maze
-        self.path = path
-        self.num_turns = num_turns
+        self.tail = path
+        self.head = head
         self.facing = facing
 
     @property
-    def head(self):
-        return self.path[-1]
+    def score(self):
+        if self.tail == []:
+            return 1
+        else:
+            return self.tail.score + 1 + 1000*(self.tail.facing != None and self.facing == self.tail.facing)
 
     @property
-    def score(self):
-        return len(self.path) + self.num_turns*1000
+    def points(self):
+        if self.tail == []:
+            return set()
+        else:
+            return self.tail.points | {self.head}
 
     def print(self):
         copy = deepcopy(self.maze)
-        char = '>'
-        for step in self.path:
-            match step:
-                case Facing.LEFT:
-                    char = '<'
-                case Facing.RIGHT:
-                    char = '>'
-                case Facing.UP:
-                    char = '^'
-                case Facing.DOWN:
-                    char = 'v'
-                case _:
-                    copy[step[0]][step[1]] = char
+        char = '@'
+        for i, j in self.points:
+            copy[i][j] = char
         pprint(["".join(line) for line in copy])
+
+    def __contains__(self, point):
+        return self.head == point or point in self.tail
 
 
 def adjacent(point, maze):
@@ -177,21 +176,21 @@ def part02_path_finding(maze):
     end = find_char(maze, 'E')
 
     paths = []
-    q = [Path(maze, [start], 0, Facing.RIGHT)]
+    q = [Path(maze, [], end, None)]
     while len(q) > 0:
         path = q.pop()
-        if path.head == end:
+        if path.head == start:
             paths.append(path)
         else:
             for point, step_direction in adjacent(path.head, maze):
-                if point not in path.path:
-                    new_path = Path(maze, path.path + [point], path.num_turns, step_direction)
-                    if step_direction != path.facing:
-                        new_path.num_turns += 1
+                if point not in path:
+                    new_path = Path(maze, path, point, step_direction)
                     q.append(new_path)
     optimal_cost = min([path.score for path in paths])
     good_seats = set()
-    good_seats.update(point for path in paths for point in path.path if path.score == optimal_cost)
+    for path in paths:
+        if path.score == optimal_cost:
+            good_seats |= path.points
     return len(good_seats)
 
 
