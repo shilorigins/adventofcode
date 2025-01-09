@@ -1,4 +1,3 @@
-import heapq
 import math
 import sys
 
@@ -16,29 +15,19 @@ class Facing(Enum):
 
 
 class Path:
-    def __init__(self, maze, path, facing):
+    def __init__(self, maze, path, num_turns, facing):
         self.maze = maze
         self.path = path
+        self.num_turns = num_turns
         self.facing = facing
 
     @property
     def head(self):
-        index = -1
-        head = self.path[index]
-        while isinstance(head, Facing):
-            index -= 1
-            head = self.path[index]
-        return head
+        return self.path[-1]
 
     @property
     def score(self):
-        return sum([1000 if isinstance(step, Facing) else 1 for step in self.path]) - 1
-
-    def __lt__(self, other):
-        if not isinstance(other, type(self)):
-            raise TypeError
-        else:
-            return self.score < other.score
+        return len(self.path) + self.num_turns*1000
 
     def print(self):
         copy = deepcopy(self.maze)
@@ -187,32 +176,23 @@ def part02_path_finding(maze):
     start = find_char(maze, 'S')
     end = find_char(maze, 'E')
 
-    q = []
-    path = Path(maze, [start], Facing.RIGHT)
-    while path.head != end:
-        if path.facing == Facing.LEFT:
-            rotate_cw = Path(path.maze, path.path + [Facing.UP], Facing.UP)
-            rotate_ccw = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
-            new_head = (path.head[0], path.head[1] - 1)
-        elif path.facing == Facing.RIGHT:
-            rotate_ccw = Path(path.maze, path.path + [Facing.UP], Facing.UP)
-            rotate_cw = Path(path.maze, path.path + [Facing.DOWN], Facing.DOWN)
-            new_head = (path.head[0], path.head[1] + 1)
-        elif path.facing == Facing.UP:
-            rotate_ccw = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
-            rotate_cw = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
-            new_head = (path.head[0] - 1, path.head[1])
-        elif path.facing == Facing.DOWN:
-            rotate_ccw = Path(path.maze, path.path + [Facing.LEFT], Facing.LEFT)
-            rotate_cw = Path(path.maze, path.path + [Facing.RIGHT], Facing.RIGHT)
-            new_head = (path.head[0] + 1, path.head[1])
-        if not isinstance(path.head, Facing):  # there's never a reason to turn twice
-            heapq.heappush(q, rotate_cw)
-            heapq.heappush(q, rotate_ccw)
-        if maze[new_head[0]][new_head[1]] != '#':
-            heapq.heappush(q, Path(path.maze, path.path + [new_head], path.facing))
-        path = heapq.heappop(q)
-    return path.score
+    paths = []
+    q = [Path(maze, [start], 0, Facing.RIGHT)]
+    while len(q) > 0:
+        path = q.pop()
+        if path.head == end:
+            paths.append(path)
+        else:
+            for point, step_direction in adjacent(path.head, maze):
+                if point not in path.path:
+                    new_path = Path(maze, path.path + [point], path.num_turns, step_direction)
+                    if step_direction != path.facing:
+                        new_path.num_turns += 1
+                    q.append(new_path)
+    optimal_cost = min([path.score for path in paths])
+    good_seats = set()
+    good_seats.update(point for path in paths for point in path.path if path.score == optimal_cost)
+    return len(good_seats)
 
 
 def test_smaller():
@@ -232,7 +212,7 @@ def test_bigger():
 def main():
     with open('input.txt') as f:
         maze = [list(line) for line in f.read().split()]
-    print(part01_dynamic(maze))
+    #print(part01_dynamic(maze))
     print(part02_path_finding(maze))
 
 
