@@ -5,7 +5,15 @@ filepath = "02.test"
 
 
 def part01(ranges):
-    pass
+    count = 0
+    for start, end in ranges:
+        for n in range(start, end + 1):
+            s = str(n)
+            hasEvenLength = len(s) % 2 == 0
+            halvesMatch = s[:len(s) // 2] == s[len(s) // 2:]
+            if hasEvenLength and halvesMatch:
+                count += n
+    return count
 
 
 def part02(ranges):
