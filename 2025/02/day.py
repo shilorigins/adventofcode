@@ -16,8 +16,21 @@ def part01(ranges):
     return count
 
 
+def isInvalid(s):
+    for i in range(1, len(s) // 2 + 1):
+        multiple = len(s) // i
+        if multiple == len(s) / i:
+            if s[:i] * multiple == s:
+                return True
+    return False
+
+
 def part02(ranges):
-    pass
+    total = 0
+    for start, end in ranges:
+        for n in range(start, end + 1):
+            total += isInvalid(str(n)) * n
+    return total
 
 
 if __name__ == "__main__":
