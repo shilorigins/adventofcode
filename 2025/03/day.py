@@ -3,7 +3,17 @@ filepath = "03.test"
 
 
 def part01(banks):
-    pass
+    joltage = 0
+    for bank in banks:
+        first_digit = max(bank)
+        i = bank.index(first_digit)
+        if i == len(bank) - 1:
+            second_digit = first_digit
+            first_digit = max(bank[:-1])
+        else:
+            second_digit = max(bank[i+1:])
+        joltage += first_digit * 10 + second_digit
+    return joltage
 
 
 def part02(banks):
