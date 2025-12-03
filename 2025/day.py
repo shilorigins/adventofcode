@@ -25,14 +25,19 @@ def part02():
     with open(filepath) as f:
         rotations = f.read().split('\n')[:-1]
     for rotation in rotations:
+        print("Step: ", rotation)
         step = int(rotation[1:])
         if rotation.startswith('L'):
             step = -step
-        password += abs((pointer + step) // 100)
-        pointer = (pointer + step) % 100
+        pointer += step
+        password += abs(pointer) // 100
+        pointer %= 100
+        print("Pointer: ", pointer)
+        print("Password: ", password)
+        print("\n")
     return password
 
 
 if __name__ == "__main__":
-    print(part01())
-    print(part02())
+    print("Part 01: ", part01())
+    print("Part 02: ", part02())
