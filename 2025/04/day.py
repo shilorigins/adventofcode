@@ -30,7 +30,15 @@ def part01(grid, counts):
 
 
 def part02(grid, counts):
-    pass
+    count = 0
+    removable = [(i, j) for j in range(len(counts)) for i in range(len(counts[0])) if counts[j][i] < 4 and grid[j][i] == "@"]
+    while len(removable) > 0:
+        for i, j in removable:
+            propogate(grid[j][i], counts, i, j, increment=False)
+            grid[j][i] = "."
+            count += 1
+            removable = [(i, j) for j in range(len(counts)) for i in range(len(counts[0])) if counts[j][i] < 4 and grid[j][i] == "@"]
+    return count
 
 
 if __name__ == "__main__":
