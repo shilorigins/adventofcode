@@ -17,10 +17,13 @@ def part02(rotations):
     pointer = 50
     for step in rotations:
         print("Step: ", step)
-        old_pointer = pointer
-        pointer += step
-        password += abs(pointer) // 100 + ((old_pointer < 0) != (pointer < 0)) - (step < 0 and old_pointer == 0)
-        pointer %= 100
+        password += abs(step) // 100
+        if step < 0 and abs(step) < pointer:
+            pointer = (pointer + step) % 100
+        else:
+            pointer += step % 100
+            password += pointer // 100
+            pointer %= 100
         print("Pointer: ", pointer)
         print("Password: ", password)
         print("\n")
