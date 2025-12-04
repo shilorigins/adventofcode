@@ -17,7 +17,17 @@ def part01(banks):
 
 
 def part02(banks):
-    pass
+    total = 0
+    for bank in banks:
+        digits = []
+        start = 0
+        for remaining_length in range(12, 0, -1):
+            digit = max(bank[start:len(bank)+1-remaining_length])
+            start = bank.index(digit, start) + 1
+            digits.append(str(digit))
+        joltage = int("".join(digits))
+        total += joltage
+    return total
 
 
 if __name__ == "__main__":
