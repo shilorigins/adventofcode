@@ -18,7 +18,10 @@ def part02(rotations):
     for step in rotations:
         print("Step: ", step)
         password += abs(step) // 100
-        if step < 0 and abs(step) < pointer:
+        if step < 0:
+            step = -(-step % 100)
+            if abs(step) >= pointer and pointer > 0:
+                password += 1
             pointer = (pointer + step) % 100
         else:
             pointer += step % 100
