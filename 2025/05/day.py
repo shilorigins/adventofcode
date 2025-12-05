@@ -21,7 +21,7 @@ def part02(ranges):
         overridden = []
         for c in contiguous:
             if lower <= c[0]:
-                if upper <= c[0]:
+                if upper < c[0]:
                     pass
                 elif upper <= c[1]:
                     upper = c[1]
