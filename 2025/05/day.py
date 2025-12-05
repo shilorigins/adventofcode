@@ -16,7 +16,33 @@ def part01(ranges, ingredients):
 
 
 def part02(ranges):
-    pass
+    contiguous = set()
+    for lower, upper in ranges:
+        overridden = []
+        for c in contiguous:
+            if lower <= c[0]:
+                if upper <= c[0]:
+                    pass
+                elif upper <= c[1]:
+                    upper = c[1]
+                    overridden.append(c)
+                elif upper >= c[1]:
+                    overridden.append(c)
+            elif lower <= c[1]:
+                if upper <= c[1]:
+                    lower = c[0]
+                    upper = c[1]
+                    overridden.append(c)
+                else:
+                    lower = c[0]
+                    overridden.append(c)
+        for elem in overridden:
+            contiguous.remove(elem)
+        contiguous.add((lower, upper))
+    count = 0
+    for lower, upper in contiguous:
+        count += upper - lower + 1
+    return count
 
 
 if __name__ == "__main__":
