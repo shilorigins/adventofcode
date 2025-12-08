@@ -20,8 +20,32 @@ def part01(text):
     return total
 
 
+def transpose(grid):
+    return list(zip(*grid))
+
+
 def part02(text):
-    pass
+    rows = transpose([list(row) for row in text.split('\n')[:-1]])
+    total = 0
+    subtotal = 0
+    op = None
+    for row in rows:
+        if row[-1] == '+':
+            subtotal = 0
+            op = '+'
+        elif row[-1] == '*':
+            subtotal = 1
+            op = '*'
+        try:
+            n = int("".join(row[:-1]))
+        except ValueError:
+            total += subtotal
+        else:
+            if op == '+':
+                subtotal += n
+            elif op == '*':
+                subtotal *= n
+    return total + subtotal
 
 
 if __name__ == "__main__":
