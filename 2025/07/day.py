@@ -24,7 +24,21 @@ def part01(grid):
 
 
 def part02(grid):
-    pass
+    beams = {}
+    beams[grid[0].index('S')] = 1
+    for row in grid[2::2]:
+        split = {}
+        splitters = {i for i, elem in enumerate(row) if elem == '^'}
+        for splitter in splitters:
+            if splitter in beams:
+                split[splitter - 1] = split.get(splitter - 1, 0) + beams[splitter]
+                split[splitter + 1] = split.get(splitter + 1, 0) + beams[splitter]
+                del beams[splitter]
+        for beam in beams:
+            if beam in split:
+                split[beam] += beams[beam]
+        beams.update(split)
+    return sum(beams.values())
 
 
 if __name__ == "__main__":
