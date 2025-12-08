@@ -1,3 +1,5 @@
+import heapq
+import numpy
 from pprint import pprint
 
 filepath = "test.txt"
@@ -16,9 +18,34 @@ class JunctionBox:
     def __repr__(self):
         return f"JunctionBox(x={self.x}, y={self.y}, z={self.z})"
 
+    @staticmethod
+    def distance(first, second):
+        return numpy.sqrt((first.x - second.x)**2 + (first.y - second.y)**2 + (first.z - second.z)**2)
+
+    def __hash__(self):
+        return (self.x, self.y, self.z).__hash__()
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and self.z == other.z
+
 
 def part01(boxes):
-    pass
+    sets = {}
+    q = []
+    for i, first in enumerate(boxes):
+        sets[first] = i
+        for second in boxes[i+1:]:
+            heapq.heappush(q, (JunctionBox.distance(first, second), first, second))
+    for _ in range(1000):
+        _, first, second = heapq.heappop(q)
+        old = min(sets[first], sets[second])
+        new = max(sets[first], sets[second])
+        sets[first] = new
+        sets[second] = new
+        for box, s in sets.items():
+            if s == old:
+                sets[box] = new
+    return # return three largest sets
 
 
 def part02(boxes):
