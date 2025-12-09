@@ -36,7 +36,7 @@ def part01(boxes):
         sets[first] = i
         for second in boxes[i+1:]:
             heapq.heappush(q, (JunctionBox.distance(first, second), first, second))
-    for _ in range(1000):
+    for _ in range(1000 if filepath == 'input.txt' else 10):
         _, first, second = heapq.heappop(q)
         old = min(sets[first], sets[second])
         new = max(sets[first], sets[second])
@@ -45,7 +45,14 @@ def part01(boxes):
         for box, s in sets.items():
             if s == old:
                 sets[box] = new
-    return # return three largest sets
+    counts = {}
+    for s in sets.values():
+        if s in counts:
+            counts[s] += 1
+        else:
+            counts[s] = 1
+    largest = sorted(counts.values(), reverse=True)
+    return largest[0] * largest[1] * largest[2]
 
 
 def part02(boxes):
