@@ -56,7 +56,23 @@ def part01(boxes):
 
 
 def part02(boxes):
-    pass
+    sets = {}
+    q = []
+    for i, first in enumerate(boxes):
+        sets[first] = i
+        for second in boxes[i+1:]:
+            heapq.heappush(q, (JunctionBox.distance(first, second), first, second))
+    while len(q) > 0:
+        _, first, second = heapq.heappop(q)
+        old = min(sets[first], sets[second])
+        new = max(sets[first], sets[second])
+        sets[first] = new
+        sets[second] = new
+        for box, s in sets.items():
+            if s == old:
+                sets[box] = new
+        if len(set(sets.values())) == 1:
+            return first.x * second.x
 
 
 if __name__ == "__main__":
